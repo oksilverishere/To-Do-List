@@ -24,6 +24,7 @@ import {
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { ACCESS_TOKEN_COOKIE, NOT_ALLOWED_MESSAGE } from '../auth/auth.constants';
+import { accessTokenCookieOptions } from '../auth/cookie-options';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { AuthUser } from '../auth/auth.interfaces';
 import { Public } from '../auth/public.decorator';
@@ -70,9 +71,7 @@ export class DashboardController {
     // httpOnly so JS (and therefore XSS) cannot read it. The body copy stays
     // for clients that do not handle cookies.
     response.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      ...accessTokenCookieOptions(),
       maxAge: 1000 * 60 * 60,
     });
 

@@ -25,6 +25,7 @@ import {
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { ACCESS_TOKEN_COOKIE, NOT_ALLOWED_MESSAGE } from '../auth/auth.constants';
+import { accessTokenCookieOptions } from '../auth/cookie-options';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { AuthUser } from '../auth/auth.interfaces';
 import { Public } from '../auth/public.decorator';
@@ -116,10 +117,7 @@ export class UserController {
     // httpOnly so JS (and therefore XSS) cannot read it. The body copy stays
     // for clients that do not handle cookies.
     response.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      // Only sent over HTTPS once there is a real TLS terminator in front.
-      secure: process.env.NODE_ENV === 'production',
+      ...accessTokenCookieOptions(),
       maxAge: 1000 * 60 * 60,
     });
 
@@ -137,11 +135,7 @@ export class UserController {
     description: 'Successfully signed out. Cookie cleared.',
   })
   signOut(@Res({ passthrough: true }) response: Response) {
-    response.clearCookie(ACCESS_TOKEN_COOKIE, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-    });
+    response.clearCookie(ACCESS_TOKEN_COOKIE, accessTokenCookieOptions());
     return { message: 'Signed out successfully' };
   }
 
