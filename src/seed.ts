@@ -6,10 +6,14 @@ import { Category } from './category/entities/category.entity';
 import { ToDo } from './to-do/entities/to-do.entity';
 import { UserRole } from './user/enums/user-role.enum';
 
-const ADMIN_EMAIL = 'ahm5dn5hh5s@gmail.com';
-const ADMIN_PASSWORD = 'admin@12211221';
+const ADMIN_EMAIL = process.env.SEED_EMAIL;
+const ADMIN_PASSWORD = process.env.SEED_PASSWORD;
 
 async function run() {
+    if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+        throw new Error('SEED_EMAIL and SEED_PASSWORD must be set in the environment');
+    }
+
     const dataSource = new DataSource({
         type: 'postgres',
         host: process.env.DB_HOST,
