@@ -12,11 +12,6 @@ export interface ChangePasswordBody {
   confirmPassword: string
 }
 
-export interface ResetPasswordBody {
-  newPassword: string
-  confirmPassword: string
-}
-
 export const getMe = () => api.get<Me>('/user/me').then((r) => r.data)
 
 /**
@@ -43,6 +38,3 @@ export const uploadImage = (image: File) => {
 
 export const changePassword = (body: ChangePasswordBody) =>
   api.patch<AuthUser>('/user/change-password', body).then((r) => r.data)
-
-export const resetPassword = (body: ResetPasswordBody) =>
-  api.patch<AuthUser>('/user/reset-password', body).then((r) => r.data)

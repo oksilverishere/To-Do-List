@@ -173,7 +173,7 @@ export class DashboardController {
   @ApiOperation({
     summary: 'Edit a user (admin only)',
     description:
-      'Updates any account by id. Send one or more of userName, email, password, role — whatever is sent is changed, the rest is kept. The password is bcrypt-hashed before it is stored. The role must be `user` or `admin`.',
+      'Updates any account by id. Send one or more of userName, email, password, role — whatever is sent is changed, the rest is kept. The password is bcrypt-hashed before it is stored. The role must be `user` or `admin`. The super admin account can only be edited by the super admin himself, and its role can never be changed.',
   })
   @ApiOkResponse({
     description: 'The updated user, without the password hash.',
@@ -181,10 +181,10 @@ export class DashboardController {
   @ApiCookieAuth(ACCESS_TOKEN_COOKIE)
   @ApiBadRequestResponse({
     description:
-      'The payload failed validation, nothing was sent, the role is not user/admin, or the email / userName already exists.',
+      'The payload failed validation, nothing was sent, the role is not user/admin, the email / userName already exists, or the super admin role is being changed.',
   })
   @ApiUnauthorizedResponse({
-    description: `No valid token, or the caller is not an admin (${NOT_ALLOWED_MESSAGE}).`,
+    description: `No valid token, the caller is not an admin, or the caller is trying to edit the super admin account (${NOT_ALLOWED_MESSAGE}).`,
   })
   @ApiNotFoundResponse({
     description: 'No user has that id.',

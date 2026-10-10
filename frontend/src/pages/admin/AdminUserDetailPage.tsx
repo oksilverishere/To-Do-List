@@ -43,7 +43,7 @@ export function AdminUserDetailPage() {
         userName: body.userName,
         email: body.email,
         ...(body.password ? { password: body.password } : {}),
-        role: body.role,
+        ...(body.role ? { role: body.role } : {}),
       }),
     onSuccess: () => {
       toast.success('User updated')
@@ -68,6 +68,8 @@ export function AdminUserDetailPage() {
 
   const user = userQuery.data
   const canDelete = isSuperAdmin && user?.role !== 'superAdmin'
+  // The super admin account can only be edited by the super admin himself.
+  const canEdit = user?.role !== 'superAdmin' || currentUser?.id === user?.id
 
   if (!user) {
     return (
@@ -102,9 +104,11 @@ export function AdminUserDetailPage() {
         description="Account details, editable only by an admin."
         actions={
           <>
-            <Button variant="ghost" onClick={() => setEditing(true)}>
-              <Pencil className="size-4" /> Edit
-            </Button>
+            {canEdit && (
+              <Button variant="ghost" onClick={() => setEditing(true)}>
+                <Pencil className="size-4" /> Edit
+              </Button>
+            )}
             {canDelete && (
               <Button variant="danger" onClick={() => setDeleting(true)}>
                 <Trash2 className="size-4" /> Delete
@@ -160,6 +164,7 @@ export function AdminUserDetailPage() {
         title="Edit user"
         initial={user}
         passwordRequired={false}
+        lockRole={user.role === 'superAdmin'}
         submitting={editMutation.isPending}
         onSubmit={async (body) => {
           await editMutation.mutateAsync(body)

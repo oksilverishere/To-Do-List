@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Camera, KeyRound, ShieldCheck, UserRound } from 'lucide-react'
-import { changePassword, resetPassword, updateProfile, uploadImage } from '../api/user'
+import { Camera, KeyRound, UserRound } from 'lucide-react'
+import { changePassword, updateProfile, uploadImage } from '../api/user'
 import { PageHeader } from '../components/PageHeader'
 import { Button, Card, Input } from '../components/ui'
 import { useAuth } from '../hooks/useAuth'
@@ -22,12 +22,8 @@ export function ProfilePage() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  const [resetNew, setResetNew] = useState('')
-  const [resetConfirm, setResetConfirm] = useState('')
-
   const [nameError, setNameError] = useState('')
   const [changePwError, setChangePwError] = useState('')
-  const [resetPwError, setResetPwError] = useState('')
 
   useEffect(() => {
     setName(user?.name ?? '')
@@ -76,17 +72,6 @@ export function ProfilePage() {
     onError: (error) => setChangePwError(getApiErrorMessage(error)),
   })
 
-  const resetPwMutation = useMutation({
-    mutationFn: () => resetPassword({ newPassword: resetNew, confirmPassword: resetConfirm }),
-    onSuccess: () => {
-      toast.success('Password reset')
-      setResetNew('')
-      setResetConfirm('')
-      setResetPwError('')
-    },
-    onError: (error) => setResetPwError(getApiErrorMessage(error)),
-  })
-
   const handleProfile = (event: FormEvent) => {
     event.preventDefault()
     setNameError('')
@@ -105,16 +90,6 @@ export function ProfilePage() {
       return
     }
     changePwMutation.mutate()
-  }
-
-  const handleResetPassword = (event: FormEvent) => {
-    event.preventDefault()
-    setResetPwError('')
-    if (resetNew !== resetConfirm) {
-      setResetPwError('New password and confirmation do not match')
-      return
-    }
-    resetPwMutation.mutate()
   }
 
   const avatarUrl = imagePreview ?? user?.avatarUrl ?? null
@@ -231,47 +206,6 @@ export function ProfilePage() {
               <div className="flex justify-end">
                 <Button type="submit" loading={changePwMutation.isPending}>
                   Change password
-                </Button>
-              </div>
-            </form>
-          </Card>
-
-          <Card>
-            <div className="mb-4 flex items-center gap-2">
-              <ShieldCheck className="size-5 text-indigo-400" />
-              <h2 className="font-semibold text-white">Reset password</h2>
-            </div>
-            <p className="mb-4 text-sm text-slate-500">
-              Same as changing it, but you are already signed in — no old
-              password needed.
-            </p>
-            <form
-              onSubmit={handleResetPassword}
-              className="flex flex-col gap-4"
-              noValidate
-            >
-              <Input
-                label="New password"
-                type="password"
-                autoComplete="new-password"
-                minLength={8}
-                required
-                value={resetNew}
-                onChange={(e) => setResetNew(e.target.value)}
-              />
-              <Input
-                label="Confirm new password"
-                type="password"
-                autoComplete="new-password"
-                minLength={8}
-                required
-                value={resetConfirm}
-                onChange={(e) => setResetConfirm(e.target.value)}
-              />
-              {resetPwError && <p className="field-error">{resetPwError}</p>}
-              <div className="flex justify-end">
-                <Button type="submit" loading={resetPwMutation.isPending}>
-                  Reset password
                 </Button>
               </div>
             </form>

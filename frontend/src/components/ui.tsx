@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type {
   ButtonHTMLAttributes,
   ComponentType,
@@ -6,7 +7,7 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react'
-import { Loader2, X } from 'lucide-react'
+import { Eye, EyeOff, Loader2, X } from 'lucide-react'
 
 /* ------------------------------- Button ------------------------------- */
 
@@ -56,7 +57,12 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string
 }
 
-export function Input({ label, error, className = '', id, ...rest }: InputProps) {
+export function Input({ label, error, className = '', id, type, ...rest }: InputProps) {
+  // Any password field gets a show/hide toggle for free.
+  const [showPassword, setShowPassword] = useState(false)
+  const isPassword = type === 'password'
+  const resolvedType = isPassword && showPassword ? 'text' : type
+
   return (
     <div>
       {label && (
@@ -64,11 +70,29 @@ export function Input({ label, error, className = '', id, ...rest }: InputProps)
           {label}
         </label>
       )}
-      <input
-        id={id}
-        className={`input ${error ? 'border-rose-500' : ''} ${className}`}
-        {...rest}
-      />
+      <div className={isPassword ? 'relative' : undefined}>
+        <input
+          id={id}
+          type={resolvedType}
+          className={`input ${error ? 'border-rose-500' : ''} ${isPassword ? 'pr-10' : ''} ${className}`}
+          {...rest}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword((visible) => !visible)}
+            className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 transition hover:text-slate-200"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            tabIndex={-1}
+          >
+            {showPassword ? (
+              <EyeOff className="size-4" />
+            ) : (
+              <Eye className="size-4" />
+            )}
+          </button>
+        )}
+      </div>
       {error && <p className="field-error">{error}</p>}
     </div>
   )

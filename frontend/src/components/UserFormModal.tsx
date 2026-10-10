@@ -13,7 +13,7 @@ export interface UserFormBody {
   userName: string
   email: string
   password?: string
-  role: 'user' | 'admin'
+  role?: 'user' | 'admin'
 }
 
 /** Shared create / edit dialog for a user in the admin panel. */
@@ -24,6 +24,7 @@ export function UserFormModal({
   initial,
   submitting,
   passwordRequired,
+  lockRole = false,
   onSubmit,
 }: {
   open: boolean
@@ -32,6 +33,7 @@ export function UserFormModal({
   initial?: DashboardUser
   submitting: boolean
   passwordRequired: boolean
+  lockRole?: boolean
   onSubmit: (body: UserFormBody) => Promise<void>
 }) {
   const [userName, setUserName] = useState('')
@@ -54,8 +56,10 @@ export function UserFormModal({
     event.preventDefault()
     setError('')
     try {
-      const body: UserFormBody = { userName: userName.trim(), email, role }
+      const body: UserFormBody = { userName: userName.trim(), email }
       if (password) body.password = password
+      // A locked role (the super admin account) is never sent or changed.
+      if (!lockRole) body.role = role
       if (passwordRequired && !password) {
         setError('Password is required')
         return
@@ -99,6 +103,7 @@ export function UserFormModal({
           label="Role"
           options={ROLE_OPTIONS}
           value={role}
+          disabled={lockRole}
           onChange={(e) => setRole(e.target.value as 'user' | 'admin')}
         />
         {error && <p className="field-error">{error}</p>}

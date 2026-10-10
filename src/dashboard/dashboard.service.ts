@@ -19,6 +19,11 @@ const NOTHING_TO_UPDATE_MESSAGE =
 
 const SUPER_ADMIN_PROTECTED_MESSAGE = 'the super admin account cannot be deleted';
 
+const SUPER_ADMIN_EDIT_DENIED_MESSAGE =
+    'the super admin account can only be edited by the super admin';
+
+const SUPER_ADMIN_ROLE_MESSAGE = 'the super admin role cannot be changed';
+
 @Injectable()
 export class DashboardService {
   constructor(
@@ -132,7 +137,11 @@ export class DashboardService {
     return users.map((user) => this.toSafeUser(user));
   }
 
-  /** Any account's email / password / userName / role can be edited. Admin only. */
+  /**
+   * Any account's email / password / userName / role can be edited, admin
+   * only — except the super admin account, which only the super admin may
+   * edit and whose role can never be changed.
+   */
   async editUser(
     adminId: string,
     userId: string,
@@ -154,6 +163,19 @@ export class DashboardService {
 
     if (!user) {
       throw new NotFoundException('this user no longer exists');
+    }
+
+    // The super admin account is locked down: nobody but the super admin
+    // himself may edit it (an admin must not be able to demote him), and the
+    // super admin role itself can never be changed — not even by himself.
+    if (user.role === UserRole.SUPER_ADMIN) {
+      if (user.id !== adminId) {
+        throw new UnauthorizedException(SUPER_ADMIN_EDIT_DENIED_MESSAGE);
+      }
+
+      if (dto.role !== undefined) {
+        throw new BadRequestException(SUPER_ADMIN_ROLE_MESSAGE);
+      }
     }
 
     // Readable message instead of a raw Postgres 23505; the catch below

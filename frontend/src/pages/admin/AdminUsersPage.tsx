@@ -75,7 +75,7 @@ export function AdminUsersPage() {
         userName: body.userName,
         email: body.email,
         password: body.password ?? '',
-        role: body.role,
+        role: body.role ?? 'user',
       }),
     onSuccess: () => {
       toast.success('User created')
@@ -90,7 +90,7 @@ export function AdminUsersPage() {
         userName: args.body.userName,
         email: args.body.email,
         ...(args.body.password ? { password: args.body.password } : {}),
-        role: args.body.role,
+        ...(args.body.role ? { role: args.body.role } : {}),
       }),
     onSuccess: () => {
       toast.success('User updated')
@@ -206,14 +206,17 @@ export function AdminUsersPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => setModal({ mode: 'edit', user })}
-                        className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
-                        title="Edit user"
-                      >
-                        <Pencil className="size-4" />
-                      </button>
+                      {(user.role !== 'superAdmin' ||
+                        user.id === currentUser?.id) && (
+                        <button
+                          type="button"
+                          onClick={() => setModal({ mode: 'edit', user })}
+                          className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+                          title="Edit user"
+                        >
+                          <Pencil className="size-4" />
+                        </button>
+                      )}
                       {isSuperAdmin && user.role !== 'superAdmin' && (
                         <button
                           type="button"
@@ -239,6 +242,7 @@ export function AdminUsersPage() {
         title={modal?.mode === 'edit' ? 'Edit user' : 'New user'}
         initial={modal?.mode === 'edit' ? modal.user : undefined}
         passwordRequired={modal?.mode === 'create'}
+        lockRole={modal?.mode === 'edit' && modal.user?.role === 'superAdmin'}
         submitting={createMutation.isPending || editMutation.isPending}
         onSubmit={async (body) => {
           if (modal?.mode === 'edit' && modal.user) {
