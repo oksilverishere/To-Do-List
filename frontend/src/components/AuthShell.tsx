@@ -20,7 +20,7 @@ export function AuthShell({
             <CheckSquare className="size-6" />
           </span>
           <span className="text-2xl font-semibold tracking-tight text-white">
-            TaskFlow
+            myToDo
           </span>
         </div>
         <Card className="p-6">

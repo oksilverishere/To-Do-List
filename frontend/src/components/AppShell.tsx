@@ -163,7 +163,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
       </span>
       {!compact && (
         <span className="text-lg font-semibold tracking-tight text-white">
-          TaskFlow
+          myToDo
         </span>
       )}
     </div>
